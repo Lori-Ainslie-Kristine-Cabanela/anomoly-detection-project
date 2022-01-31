@@ -32,7 +32,7 @@ def read_curriculum_logs():
     # Read fresh data from db into a DataFrame.
         df = get_curriculum_logs()
     # Write DataFrame to a csv file.
-        df.to_csv('df.csv')
+        df.to_csv('curriculum-logs.csv')
     return df
 
 
