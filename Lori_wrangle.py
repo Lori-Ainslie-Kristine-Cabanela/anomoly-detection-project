@@ -70,8 +70,6 @@ def prep_data_by_user(df, user):
     This function takes in a dataframe and a user id and returns a dataframe with data for only that user
     '''
     df = df[df.user_id == user]
-    df.date = pd.to_datetime(df.date)
-    df = df.set_index(df.date)
     single_user_data = df.path.resample('d').count()
     return single_user_data
 
