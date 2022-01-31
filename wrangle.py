@@ -43,7 +43,7 @@ def prep_curriculum_data():
     This function 
     '''
     # use a function to connect to and pull in data from SQL
-        df = get_curriculum_logs()
+        df = get_curriculum_logs(read_curriculum_logs)
 
     # convert date to a pandas datetime format and set as index
         df.date = pd.to_datetime(df.date)
