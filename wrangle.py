@@ -46,8 +46,13 @@ def prep_curriculum_data():
         df = read_curriculum_logs()
 
     # convert date to a pandas datetime format and set as index
-        df.date = pd.to_datetime(df.date)
-        df = df.set_index(df.date)
+
+    # concatenate date and time columns
+    df['date'] = df.date + ' ' + df.time
+    # convert date column to datetime
+    df.date = pd.to_datetime(df.date)
+    # set date column as index
+    df = df.set_index('date').sort_index()
 
     # drop original date column
         df.drop(columns='date',inplace=True)
