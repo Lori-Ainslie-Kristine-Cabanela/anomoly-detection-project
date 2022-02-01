@@ -6,15 +6,15 @@ import os
 
 
 def get_db_url(database):
-        url = f'mysql+pymysql://{env.user}:{env.password}@{env.host}/{database}'
-        return url
+    url = f'mysql+pymysql://{env.user}:{env.password}@{env.host}/{database}'
+    return url
 
 
 
 def get_curriculum_logs():
     sql = """
-          SELECT * FROM logs
-                    LEFT JOIN cohorts ON logs.cohort_id = cohorts.id;
+        SELECT * FROM logs
+            LEFT JOIN cohorts ON logs.cohort_id = cohorts.id;
           """
     url = get_db_url('curriculum_logs')
     df = pd.read_sql(sql, url)
@@ -26,12 +26,12 @@ def read_curriculum_logs():
     """This function reads in the curriculum logs dataset from the CodeUp db, writes data to a csv 
     file if a local file does not exist, and returns a df"""
     if os.path.isfile('curriculum-logs.csv'):
-    # If csv file exists, read in data from csv file.\n",
+        # If csv file exists, read in data from csv file.\n",
         df = pd.read_csv('curriculum-logs.csv', index_col = 0)
     else:
-    # Read fresh data from db into a DataFrame.
+        # Read fresh data from db into a DataFrame.
         df = get_curriculum_logs()
-    # Write DataFrame to a csv file.
+        # Write DataFrame to a csv file.
         df.to_csv('curriculum-logs.csv')
     return df
 
@@ -39,13 +39,11 @@ def read_curriculum_logs():
 
 
 def prep_curriculum_data():
-        '''
+    '''
     This function 
     '''
     # use a function to connect to and pull in data from SQL
-        df = read_curriculum_logs()
-
-    # convert date to a pandas datetime format and set as index
+    df = read_curriculum_logs()
 
     # concatenate date and time columns
     df['date'] = df.date + ' ' + df.time
@@ -54,33 +52,33 @@ def prep_curriculum_data():
     # set date column as index
     df = df.set_index('date').sort_index()
 
-    # drop original date column
-        df.drop(columns='date',inplace=True)
+    # drop original time column
+    df.drop(columns='time',inplace=True)
+    # fill null value & check that there are no nulls
+    df.path = df.path.fillna('/')
 
     # rename the following columns for clarity
-        df.rename(columns = {'path':'endpoint', 'ip':'ip_address', 'name':'cohort_name'}, inplace = True)
-
-    # drop unnecessary columns
+    df.rename(columns = {'path':'endpoint', 'ip':'ip_address', 'name':'cohort_name'}, inplace = True)
 
     # create column for program names
-        df['program_name'] = df.program_id.map({1.0: 'PHP Full Stack Web Development',
-                                        2.0: 'Java Full Stack Web Development',
-                                        3.0: 'Data Science',
-                                        4.0: 'Front End Web Development'})
+    df['program_name'] = df.program_id.map({1.0: 'PHP Full Stack Web Development',
+                                            2.0: 'Java Full Stack Web Development',
+                                            3.0: 'Data Science',
+                                            4.0: 'Front End Web Development'})
 
     # create column for program
 
-        df['program'] = df.program_id.map({1.0: 'Web Development',
-                                   2.0: 'Web Development',
+    df['program'] = df.program_id.map({1.0: 'Web Development',
+                                    2.0: 'Web Development',
                                    3.0: 'Data Science',
                                    4.0: 'Web Development'})
 
 
     # convert other date columns to date_time
-        df[['start_date', 'end_date', 'created_at', 'updated_at']].apply(pd.to_datetime)
+    df[['start_date', 'end_date', 'created_at', 'updated_at']].apply(pd.to_datetime)
 
 
-        return df
+    return df
 
         
 
@@ -97,9 +95,9 @@ def prep_data_by_user(df, user):
     This function takes in a dataframe and a user id and returns a dataframe with data for only that user
     '''
     df = df[df.user_id == user]
-    df.date = pd.to_datetime(df.date)
-    df = df.set_index(df.date)
-    single_user_data = df.path.resample('d').count()
+    # df.date = pd.to_datetime(df.date)
+    # df = df.set_index(df.date)
+    single_user_data = df.endpoint.resample('d').count()
     return single_user_data
 
 def compute_pct_b(single_user_data, span, weight, user):
